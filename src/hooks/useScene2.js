@@ -7,7 +7,8 @@ const random = (min, max) => {
 
 export function useScene2() {
   const meshesRef = useRef([]);
-  const rotationSpeedsRef = useRef([]);
+  const lightsRef = useRef([]);
+  const initializedRef = useRef(false);
 
   const scene2 = useMemo(() => {
     return new THREE.Scene();
@@ -29,13 +30,19 @@ export function useScene2() {
   }, []);
 
   useEffect(() => {
-    // Add lights once
-    const light = new THREE.AmbientLight(0xffffff, 0.5);
-    scene2.add(light);
+    // Prevent double initialization (React StrictMode)
+    if (initializedRef.current) return;
+    initializedRef.current = true;
 
-    const light2 = new THREE.DirectionalLight(0xffffff, 1.5);
+    // Add lights
+    const light = new THREE.AmbientLight(0xffffff, 0.05);
+    scene2.add(light);
+    lightsRef.current.push(light);
+
+    const light2 = new THREE.DirectionalLight(0xffffff, 2.5);
     light2.position.set(1, 1, 0.866);
     scene2.add(light2);
+    lightsRef.current.push(light2);
 
     // Add meshes
     const num = 50;
@@ -58,16 +65,37 @@ export function useScene2() {
     }
 
     meshesRef.current = meshes;
+
+    // Cleanup function
+    return () => {
+      // Remove meshes
+      meshesRef.current.forEach((mesh) => {
+        mesh.geometry.dispose();
+        mesh.material.dispose();
+        scene2.remove(mesh);
+      });
+      meshesRef.current = [];
+
+      // Remove lights
+      lightsRef.current.forEach((light) => {
+        scene2.remove(light);
+        if (light.dispose) light.dispose();
+      });
+      lightsRef.current = [];
+
+      initializedRef.current = false;
+    };
   }, [scene2]);
 
-  const speed = 0.5;
+  const speed = 2.5;
 
   // Animation function to be called from useFrame
   const animateCubes = (time, delta) => {
     meshesRef.current.forEach((mesh, index) => {
-      mesh.rotation.x = Math.sin(mesh.position.x * time) * speed;
-      mesh.rotation.y = Math.sin(mesh.position.y * time) * speed;
-      mesh.rotation.z = Math.sin(mesh.position.z * time) * speed;
+      mesh.rotation.x = Math.sin(mesh.position.x + time * speed);
+      mesh.rotation.y = Math.sin(mesh.position.y + time * speed);
+      mesh.rotation.z = Math.sin(mesh.position.z + time * speed);
+      mesh.position.y = Math.sin(time * 0.5 + index) * 2;
     });
   };
 
