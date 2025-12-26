@@ -2,6 +2,8 @@
 
 A React Three Fiber (R3F) implementation of an ASCII shader effect using WebGPU and Three.js.
 
+<img width="508" height="512" alt="image" src="https://github.com/user-attachments/assets/53359eea-be6e-4d59-b6e9-9bc73ef32941" />
+
 ## About
 
 This project is a React Three Fiber port of the ASCII shader tutorial by [Yuri Artiukh](https://www.youtube.com/watch?v=NxeRcnLr0ko). It demonstrates how to create an ASCII art effect using WebGPU and Three.js Shading Language (TSL).
